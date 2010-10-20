@@ -20,11 +20,11 @@
 This R package is a wrapper around the liblinear C/C++ machine learning library.
 
 Install the latest version via git:
-  git clone http://github.com/klynagh/Rliblinear/
+  git clone http://github.com/lynaghk/Rliblinear/
   R CMD build Rliblinear
   R CMD install Rliblinear
 
-Ten-fold cross validation
+Ten-fold cross validation:
   source(Rliblinear)
   data(iris)
   liblinear(data = iris[,1:4],
