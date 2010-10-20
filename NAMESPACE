@@ -1,5 +1,5 @@
-useDynLib(LiblineaR)
+useDynLib(Rliblinear)
 
-export(LiblineaR,heuristicC)
+export(liblinear,heuristicC)
          
-S3method(predict, LiblineaR)
+S3method(predict, Rliblinear)

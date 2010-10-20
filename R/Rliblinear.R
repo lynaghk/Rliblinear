@@ -1,5 +1,13 @@
-LiblineaR<-function(data,labels,type=0,cost=1,epsilon=0.01,bias=TRUE,wi=NULL,cross=0,verbose=FALSE){
-	# <Arg preparation>
+liblinear = function(
+  data,
+  labels,
+  type=0,
+  cost=1,
+  epsilon=0.01,
+  bias=TRUE,
+  wi=NULL,
+  cross=0,
+  verbose=FALSE){
 	
 	# Nb samples
 	n=dim(data)[1]
@@ -143,7 +151,7 @@ LiblineaR<-function(data,labels,type=0,cost=1,epsilon=0.01,bias=TRUE,wi=NULL,cro
 	
 		types=c("L2-regularized logistic regression (L2R_LR)", "L2-regularized L2-loss support vector classification dual (L2R_L2LOSS_SVC_DUAL)", "L2-regularized L2-loss support vector classification primal (L2R_L2LOSS_SVC)", "L2-regularized L1-loss support vector classification dual (L2R_L1LOSS_SVC_DUAL)", "multi-class support vector classification by Crammer and Singer (MCSVM_CS)", "L1-regularized L2-loss support vector classification (L1R_L2LOSS_SVC)", "L1-regularized logistic regression (L1R_LR)")
 		m=list()
-		class(m)="LiblineaR"
+		class(m)="liblinear"
 		m$TypeDetail=types[type+1]
 		m$Type=type
 		m$W=w

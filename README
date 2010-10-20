@@ -1,26 +1,28 @@
-This R package is a wrapper around the liblinear C/C++ library for machine learning. 
-It allows the estimation of predictive linear models such as L1- or L2-regularized 
-logistic regression, L1- or L2-regularized L2-loss support vector classification, 
-L2-regularized L1-loss support vector classification and multi-class support vector 
-classification. The estimation of the models is particularly fast as compared to other 
-libraries. For more information on liblinear itself, refer to:
+This R package is a wrapper around the liblinear C/C++ library for machine learning.
+It allows the estimation of predictive linear models:
+  L1- or L2-regularized logistic regression
+  L1- or L2-regularized L2-loss support vector classification
+  L2-regularized L1-loss support vector classification
+  multi-class support vector classification.
+
+For more information on liblinear itself, refer to:
 
 R.-E. Fan, K.-W. Chang, C.-J. Hsieh, X.-R. Wang, and C.-J. Lin. 
 LIBLINEAR: A Library for Large Linear Classification, 
 Journal of Machine Learning Research 9(2008), 1871-1874. 
 
-Software available at http://www.csie.ntu.edu.tw/~cjlin/liblinear .
+Software available at http://www.csie.ntu.edu.tw/~cjlin/liblinear.
 
-Copyright
----------
-
-All of this software is copyrighted by the list of authors in the DESCRIPTION file of 
-the package and subject to the GNU GENERAL PUBLIC LICENSE, Version 2, see the file
-COPYING for details. The LIBLINEAR C/C++ code is copyright Chih-Chung Chang and 
-Chih-Jen Lin.
 
 Installation
 ------------
-
 This package should be installed using the `R CMD INSTALL' mechanism, see
 the R online help or R manuals for details on how to install packages.
+
+
+Copyright
+---------
+All of this software is copyrighted by the list of authors in the DESCRIPTION file of the package and subject to the GNU GENERAL PUBLIC LICENSE, Version 2.
+See the file COPYING for details.
+The LIBLINEAR C/C++ code is copyright Chih-Chung Chang and Chih-Jen Lin.
+The original liblineaR R wrapper was written by Thibault Helleputte, http://www.thibaulthelleputte.be

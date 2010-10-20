@@ -1,6 +1,4 @@
-predict.LiblineaR<-function(object,newx,proba=FALSE,...){
-	
-	# <Arg preparation>
+predict.Rliblinear = function(object, newx, proba=FALSE, ...){
 	
 	error=c()
 	
