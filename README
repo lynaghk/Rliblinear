@@ -1,5 +1,41 @@
-This R package is a wrapper around the liblinear C/C++ library for machine learning.
-It allows the estimation of predictive linear models:
+                                     _ __  
+                                    | '_ \ 
+                                    | | | |
+  /                             \   |_| |_| 
+ /                               \        
+ |      +             /          |        
+ |       +     +     /           |      
+ |                  /   -        |      _____   _  _  _      _  _                           
+ |     +    +   +  /  -          |     |  __ \ | |(_)| |    | |(_)                          
+ |                /        -     |     | |__) || | _ | |__  | | _  _ __    ___   __ _  _ __ 
+ |     +   +     / -   -         |     |  _  / | || || '_ \ | || || '_ \  / _ \ / _` || '__|
+ |              /                |     | | \ \ | || || |_) || || || | | ||  __/| (_| || |   
+ |    +        /   -    -        |     |_|  \_\|_||_||_.__/ |_||_||_| |_| \___| \__,_||_|   
+ |          + /      -           |                                                                                  
+ \           /   -               /                                                                                  
+  \                             /                                                                                   
+                                                                                                                          
+
+
+This R package is a wrapper around the liblinear C/C++ machine learning library.
+
+Install the latest version via git:
+  git clone http://github.com/klynagh/Rliblinear/
+  R CMD build Rliblinear
+  R CMD install Rliblinear
+
+Ten-fold cross validation
+  source(Rliblinear)
+  data(iris)
+  liblinear(data = iris[,1:4],
+            labels = iris[,5],
+            cross = 10
+            )
+
+
+Liblinear
+---------
+Liblinear allows the estimation of predictive linear models:
   L1- or L2-regularized logistic regression
   L1- or L2-regularized L2-loss support vector classification
   L2-regularized L1-loss support vector classification
@@ -14,10 +50,6 @@ Journal of Machine Learning Research 9(2008), 1871-1874.
 Software available at http://www.csie.ntu.edu.tw/~cjlin/liblinear.
 
 
-Installation
-------------
-This package should be installed using the `R CMD INSTALL' mechanism, see
-the R online help or R manuals for details on how to install packages.
 
 
 Copyright
@@ -26,3 +58,6 @@ All of this software is copyrighted by the list of authors in the DESCRIPTION fi
 See the file COPYING for details.
 The LIBLINEAR C/C++ code is copyright Chih-Chung Chang and Chih-Jen Lin.
 The original liblineaR R wrapper was written by Thibault Helleputte, http://www.thibaulthelleputte.be
+
+
+
