@@ -1,4 +1,4 @@
-predict.Rliblinear = function(object, newx, proba=FALSE, ...){
+predict.liblinear = function(object, newx, proba=FALSE, ...){
 	
 	error=c()
 	

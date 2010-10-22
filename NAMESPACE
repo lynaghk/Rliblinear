@@ -2,4 +2,4 @@ useDynLib(Rliblinear)
 
 export(liblinear,heuristicC)
          
-S3method(predict, Rliblinear)
+S3method(predict, liblinear)
