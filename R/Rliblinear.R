@@ -1,7 +1,7 @@
 liblinear = function(
   data,
   labels,
-  type=1,
+  type='l2l2_svm_dual',
   cost=1,
   epsilon=0.01,
   bias=TRUE,
@@ -9,17 +9,26 @@ liblinear = function(
   cross=0,
   verbose=FALSE){
 
-
   types = list(
-    0="l2_regression",
-    7="l2_regression_dual",
-    6="l1_regression",
-    2="l2l2_svm",
-    1="l2l2_svm_dual",
-    3="l2l1_svm_dual",
-    4="multiclass",
-    5="l1l2_svm"
+    'l2_regression'=0,
+    'l2_regression_dual'=7,
+    'l1_regression'=6,
+    'l2l2_svm'=2,
+    'l2l2_svm_dual'=1,
+    'l2l1_svm_dual'=3,
+    'multiclass'=4,
+    'l1l2_svm'=5
     )
+  type_err = paste("Wrong value for 'type', must be:\n",
+    paste(names(types), collapse="\n"), "\n",
+    sep='')
+
+  if(!is.character(type))
+    stop(type_err)
+  
+  type = types[[type]]
+  if(is.null(type))
+    stop(type_err)
 
   # Nb samples
   n=dim(data)[1]
@@ -27,18 +36,7 @@ liblinear = function(
   p=dim(data)[2]
 
   # Bias
-  if(bias){
-    b=1
-  }
-  else{
-    b=-1
-  }
-
-  # Type
-  if(type<0 || type>6){
-    cat("Wrong value for 'type'. Must be an integer between 0 and 6 included.\n")
-    return(-1)
-  }
+  b = if(bias){1}else{-1}
 
   # Epsilon
   if(is.null(epsilon) || epsilon<0){
@@ -65,8 +63,7 @@ liblinear = function(
   if(!is.null(wi)){
     if(!is.null(names(wi))){
       if(as.integer(length(intersect(as.character(names(wi)),as.character(yLev))))<length(names(wi))){
-        cat("Mismatch between provided names for 'wi' and class labels.\n")
-        return(-1)
+        stop("Mismatch between provided names for 'wi' and class labels.\n")
       }
       else{
         Wi=defaultWi
@@ -76,8 +73,7 @@ liblinear = function(
       }
     }
     else{
-      cat("wi has to be a named vector!\n")
-      return(-1)
+      stop("wi has to be a named vector!\n")
     }
   }
   else{
@@ -86,12 +82,11 @@ liblinear = function(
 
   # Cross-validation?
   if(cross<0){
-    cat("Cross-validation argument 'cross' cannot be negative!\n")
-    return(-1)
+    stop("Cross-validation argument 'cross' cannot be negative!\n")
   }
   else if(cross>n){
-    cat("Cross-validation argument 'cross' cannot be larger than the number of samples (",n,").\n",sep="")
-    return(-1)
+    stop("Cross-validation argument 'cross' cannot be larger than the number of samples (",n,").\n",sep="")
+
   }
 
   # Return storage preparation
@@ -112,8 +107,7 @@ liblinear = function(
     }
   }
   else{
-    cat("Wrong number of classes ( < 2 ).\n")
-    return(-1)
+    stop("Wrong number of classes ( < 2 ).\n")
   }
 
   #
@@ -161,15 +155,14 @@ liblinear = function(
       }
     }
 
-    types=c("L2-regularized logistic regression (L2R_LR)", "L2-regularized L2-loss support vector classification dual (L2R_L2LOSS_SVC_DUAL)", "L2-regularized L2-loss support vector classification primal (L2R_L2LOSS_SVC)", "L2-regularized L1-loss support vector classification dual (L2R_L1LOSS_SVC_DUAL)", "multi-class support vector classification by Crammer and Singer (MCSVM_CS)", "L1-regularized L2-loss support vector classification (L1R_L2LOSS_SVC)", "L1-regularized logistic regression (L1R_LR)")
     m=list()
     class(m)="liblinear"
-    m$TypeDetail=types[type+1]
-    m$Type=type
-    m$W=w
-    m$Bias=bias
-    m$ClassNames=yLev
-    m$NbClass=nbClass
+    m$type_detail= names(Filter(function(x){x == type}, types))
+    m$type=type
+    m$w=w
+    m$bias=bias
+    m$class_names=yLev
+    m$nb_class=nbClass
     return(m)
   }
   else{
