@@ -3,13 +3,13 @@ Title: Linear Predictive Models Based On The Liblinear C/C++ Library.
 Version: 1.7-1
 Author: Kevin Lynagh <kevin@dirigibleFlightcraft.com>, Thibault Helleputte <thelleputte@gmail.com>
 Maintainer: Kevin Lynagh <kevin@dirigibleFlightcraft.com>
-Description: This R package is a wrapper around the liblinear C/C++ library for machine learning.
-             It allows the estimation of predictive linear models such as L1- or L2-regularized logistic regression, L1- or L2-regularized L2-loss support vector classification, L2-regularized L1-loss support vector classification and multi-class support vector classification.
-             The estimation of the models is particularly fast as compared to other libraries.
+Description: This R package is a wrapper around the liblinear C/C++ library for large linear classification
+             It estimates predictive linear models such as L1- or L2-regularized logistic regression, L1- or L2-regularized L2-loss support vector classification, L2-regularized L1-loss support vector classification and multi-class support vector classification.
+             LIBLINEAR can handle problems with millions of instances and features.
              For more information on the C/C++ liblinear library itself, refer to R.-E. Fan, K.-W. Chang, C.-J. Hsieh, X.-R. Wang, and C.-J. Lin.
              LIBLINEAR: A Library for Large Linear Classification, Journal of Machine Learning Research 9(2008), 1871-1874, available at
                http://www.csie.ntu.edu.tw/~cjlin/liblinear
-             The two first blocks of the package version indicates the liblinear version (e.g. version 1.7-1 means that the package includes liblinear version 1.7)
+             The two first blocks of the package version indicates the LIBLINEAR version (e.g. version 1.7-1 means that the package includes liblinear version 1.7).
 License: GPL-2
 LazyLoad: yes
 URL: http://www.dirigibleFlightcraft.com
