@@ -79,3 +79,11 @@ All of this software is copyrighted by the list of authors in the DESCRIPTION fi
 See the file COPYING for details.
 The LIBLINEAR C/C++ code is copyright Chih-Chung Chang and Chih-Jen Lin.
 The original R wrapper (*LiblineaR*)  was written by [Thibault Helleputte](http://www.thibaulthelleputte.be).
+
+
+
+Todo
+----
+* Automatically convert unordered factors into binary variables in additional input dimensions
+* Automatically convert ordered factors into cuts of 0--1
+* Add support for new 1.7 dual form of logistic regression
