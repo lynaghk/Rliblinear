@@ -7,18 +7,36 @@ y = factor(iris[,5])
 
 context('liblinear wrapper')
 
-test_that('iris dataset performance is reasonable', {
-  accuracy = liblinear(
-    data = x,
-    labels = y,
-    type = 'l2l2_svm_dual',
-    cost = 1,
-    bias = TRUE,
-    cross = 5,
-    verbose = FALSE)
-
-  expect_that( accuracy > 0.8, is_true() )
+#not exactly a unit test...
+test_that('all problem types are executed properly, with and without bias', {
+  types = c(
+    'l2_regression',
+    'l2_regression_dual',
+    'l1_regression',
+    'l2l2_svm',
+    'l2l2_svm_dual',
+    'l2l1_svm_dual',
+    'l1l2_svm'
+    )
+  sapply(types, function(type){
+    sapply(c(TRUE, FALSE), function(bias){
+      print(paste('type:', type, 'bias:', bias))
+      accuracy = liblinear(
+        data = x,
+        labels = y,
+        type = type,
+        cost = 1,
+        bias = bias,
+        cross = 5,
+        verbose = FALSE)
+      print(accuracy)
+      expect_that( accuracy > 0.8, is_true() )
+    })
+  })
 })
+
+
+
 
 test_that('model params are returned correctly', {
   model = liblinear(
@@ -28,9 +46,9 @@ test_that('model params are returned correctly', {
     cost = 1,
     bias = TRUE,
     verbose = FALSE)
-  
+
   expect_identical(model$type, 1)
   expect_identical(model$bias, TRUE)
   expect_identical(model$type_detail, 'l2l2_svm_dual')
-  
-}
+
+})
