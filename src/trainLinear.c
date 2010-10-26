@@ -23,21 +23,20 @@ double bias;
 
 double do_cross_validation(void);
 
-void trainLinear(double *W, double *X, double *Y, int *nbSamples, int *nbDim, double *bi, int *type, double *cost, double *epsilon, int *nrWi, double *Wi, int *WiLabels, int *cross, int *verbose);
+void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, double *bias, int *type, double *cost, double *epsilon, int *nr_weight, double *weight, int *weight_labels, int *cross, int *verbose);
 
 
 /**
  * Function: trainLinear
  *
- * Author: Thibault Helleputte
+ * Author: Thibault Helleputte, Kevin Lynagh
  *
  */
-void trainLinear(double *W, double *X, double *Y, int *nbSamples, int *nbDim, double *bi, int *type, double *cost, double *epsilon, int *nrWi, double *Wi, int *WiLabels, int *cross, int *verbose){
+void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, double *bias, int *type, double *cost, double *epsilon, int *nr_weight, double *weight, int *weight_labels, int *cross, int *verbose){
 
   const char *error_msg;
   int i, j, k, max_index;
   i=j=k=0;
-  bias = -1;
 
   if(*verbose){
     Rprintf("ARGUMENTS SETUP\n");
@@ -61,9 +60,9 @@ void trainLinear(double *W, double *X, double *Y, int *nbSamples, int *nbDim, do
   else
     param.eps=*epsilon;
 
-  param.nr_weight = *nrWi;
-  param.weight_label = WiLabels;
-  param.weight = Wi;
+  param.nr_weight = *nr_weight;
+  param.weight_label = weight_labels;
+  param.weight = weight;
 
   if(*cross>0){
     flag_cross_validation = 1;
@@ -78,17 +77,16 @@ void trainLinear(double *W, double *X, double *Y, int *nbSamples, int *nbDim, do
     Rprintf("PROBLEM SETUP\n");
   }
   // PROBLEM SETUP
-  prob.l = *nbSamples;
-  bias = *bi;
-  prob.bias = *bi;
+  prob.l = *nb_samples;
+  prob.bias = *bias;
 
   prob.y = Malloc(int,prob.l);
   prob.x = Malloc(struct feature_node *,prob.l);
 
   if(prob.bias >= 0)
-    x_space = Malloc(struct feature_node,(*nbDim+1)*(*nbSamples)+prob.l);
+    x_space = Malloc(struct feature_node,(*nb_dim+1)*(*nb_samples)+prob.l);
   else
-    x_space = Malloc(struct feature_node,(*nbDim)*(*nbSamples)+prob.l);
+    x_space = Malloc(struct feature_node,(*nb_dim)*(*nb_samples)+prob.l);
 
   if(*verbose){
     Rprintf("FILL DATA STRUCTURE\n");
@@ -99,17 +97,19 @@ void trainLinear(double *W, double *X, double *Y, int *nbSamples, int *nbDim, do
   for(i=0;i<prob.l;i++){
     prob.y[i] = Y[i];
     prob.x[i] = &x_space[k];
-
-    for(j=1;j<*nbDim+1;j++){
-      if(X[(*nbDim*i)+(j-1)]!=0){
+    
+    // Fill the sparse feature vector for this sample
+    for(j=1;j<*nb_dim+1;j++){
+      if(X[(*nb_dim*i)+(j-1)]!=0){
         x_space[k].index = j;
-        x_space[k].value = X[(*nbDim*i)+(j-1)];
+        x_space[k].value = X[(*nb_dim*i)+(j-1)];
         k++;
         if(j>max_index){
           max_index=j;
         }
       }
     }
+
     if(prob.bias >= 0)
       x_space[k++].value = prob.bias;
     x_space[k++].index = -1;
@@ -155,11 +155,11 @@ void trainLinear(double *W, double *X, double *Y, int *nbSamples, int *nbDim, do
       if(*verbose){
         Rprintf("TWO CLASSES\n");
       }
-      for(i=0; i<*nbDim; i++){
+      for(i=0; i<*nb_dim; i++){
         W[i]=model_->w[i];
       }
       if(prob.bias >= 0){
-        W[*nbDim]=model_->w[i];
+        W[*nb_dim]=model_->w[i];
       }
     }
     else{
@@ -168,13 +168,13 @@ void trainLinear(double *W, double *X, double *Y, int *nbSamples, int *nbDim, do
       }
       for(i=0;i<model_->nr_class;i++){
         if(prob.bias >= 0){
-          for(j=0; j<*nbDim+1; j++){
-            W[(*nbDim+1)*i+j]=model_->w[(*nbDim+1)*i+j];
+          for(j=0; j<*nb_dim+1; j++){
+            W[(*nb_dim+1)*i+j]=model_->w[(*nb_dim+1)*i+j];
           }
         }
         else{
-          for(j=0; j<*nbDim; j++){
-            W[*nbDim*i+j]=model_->w[*nbDim*i+j];
+          for(j=0; j<*nb_dim; j++){
+            W[*nb_dim*i+j]=model_->w[*nb_dim*i+j];
           }
         }
       }
