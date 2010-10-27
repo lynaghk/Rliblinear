@@ -35,8 +35,6 @@ liblinear = function(
   # Nb features
   p=dim(data)[2]
 
-  # Bias
-  b = if(bias){1}else{-1}
 
   # Epsilon
   if(is.null(epsilon) || epsilon<0){
@@ -89,7 +87,7 @@ liblinear = function(
 
   }
 
-  # Return storage preparation
+  # Return storage preparation for result
   if(nbClass==2){
     if(bias){
       W=matrix(nc=p+1,nr=1,data=0)
@@ -110,17 +108,24 @@ liblinear = function(
     stop("Wrong number of classes ( < 2 ).\n")
   }
 
-  #
-  # </Arg preparation>
 
+  #find the number of factor levels for each column; the C program expands these into one dimension per level
+  p_levels = sapply(data, function(x){
+    l = levels(x)
+    return(if (is.null(l)) 1 else length(l))
+  })
+
+  
+  
   # as.double(t(X)) corresponds to rewrite X as a nxp-long vector instead of a n-rows and p-cols matrix. Rows of X are appended one at a time.
   ret <- .C("trainLinear",
             as.double(W),
             as.double(t(data)),
             as.double(yC),
-            as.integer(n),
-            as.integer(p),
-            as.double(b),
+            as.integer(n), #the number of training data
+            as.integer(p), #the number of dimensions
+            as.integer(p_levels), #the number of levels for each dimension (1 for non-factors)
+            as.integer(if(bias){1}else{-1}),
             as.integer(type),
             as.double(cost),
             as.double(epsilon),
@@ -130,8 +135,9 @@ liblinear = function(
             as.integer(cross),
             as.integer(verbose)
             )
-
-  if(cross==0){
+  if(cross != 0){ #just return the cross validation accuracy reported by liblinear
+    return(ret[[1]][1])
+  }else{
     if(nbClass==2){
       w=matrix(nc=dim(W)[2],nr=1,data=ret[[1]])
     }
@@ -164,8 +170,5 @@ liblinear = function(
     m$class_names=yLev
     m$nb_class=nbClass
     return(m)
-  }
-  else{
-    return(ret[[1]][1])
   }
 }

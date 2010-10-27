@@ -1,5 +1,6 @@
 #Helper file to load anything required by the tests
 library(testthat)
+unloadNamespace('Rliblinear')
 library(Rliblinear)
 
 #if you're running the tests manually and/or rebuilding the package as you go, you can use
