@@ -8,7 +8,7 @@ predict.liblinear = function(object, newx, proba=FALSE, ...){
 	p=dim(newx)[2]
 	
 	# Bias
-	if(object$Bias){
+	if(object$bias){
 		b=1
 	}
 	else{
@@ -19,16 +19,16 @@ predict.liblinear = function(object, newx, proba=FALSE, ...){
 	Y=matrix(nc=n,nr=1,data=0)
 	
 	# Type 
-	if(object$Type<0 || object$Type>6){
+	if(object$type<0 || object$type>6){
 		cat("Invalid model object: Wrong value for 'type'. Must be an integer between 0 and 6 included.\n")
 		return(-1)
 	}
 	
 	# Codebook for labels
-	cn=c(1:length(object$ClassNames))
+	cn=c(1:length(object$class_names))
 	
 	# Proba allowed?
-	if(proba && object$Type!=0){
+	if(proba && object$type!=0){
 		cat("Probabilities only supported for L2-regularized Logistic Regression (liblinear 'type' 0).\n")
 		cat("Accordingly, 'proba' is set to FALSE.\n")
 		proba=FALSE
@@ -43,16 +43,16 @@ predict.liblinear = function(object, newx, proba=FALSE, ...){
 		"predictLinear",
 		as.double(Y),
 		as.double(t(newx)),
-		as.double(t(object$W)),
+		as.double(t(object$w)),
 		as.integer(proba),
-		as.integer(object$NbClass),
+		as.integer(object$nb_class),
 		as.integer(p),
 		as.integer(n),
 		as.double(b),
 		as.integer(cn),
-		as.integer(object$Type)
+		as.integer(object$type)
 		)
 		
-	return(object$ClassNames[ret[[1]]])
+	return(object$class_name[ret[[1]]])
 
 }
