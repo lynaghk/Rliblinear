@@ -39,20 +39,32 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
   i=j=k=0; //counters
 
   int n = *nb_samples; //number of training samples
-  int p = *nb_dim; //number of original dimensions
+  int orig_dim = *nb_dim; //number of original dimensions
+  double val;
 
+  //we expand factors so we have a dimension per level, so we need to calculate the dimensionality we're passing to LIBLINEAR
+  int p = 0;
+  int *offset = Malloc(int, orig_dim);
+
+  for(i=0; i<orig_dim; i++){
+    offset[i] = p; //offset i is how many true dimensions come before index i (i.e. if the first column is a factor with three levels, then offset[1] = 3).
+    p += dim_levels[i];
+  }
+  Rprintf("offsets");
+  for(i=0; i<orig_dim; i++)
+    Rprintf("%d: %d\n", i, offset[i]);
+
+  Rprintf("true number of dimensions: %d\n", p);
 
   if(*verbose){
     Rprintf("ARGUMENTS SETUP\n");
   }
-  // ARGUMENTS SETUP
   param.solver_type = *type;
   param.C = *cost;
 
-  // Verbose or not?
-  if(!*verbose){
+  if(!*verbose)
     set_print_string_function(&print_null);
-  }
+
   if(*epsilon <= 0){
     if(param.solver_type == L2R_LR || param.solver_type == L2R_L2LOSS_SVC)
       param.eps = 0.01;
@@ -60,8 +72,7 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
       param.eps = 0.1;
     else if(param.solver_type == L1R_L2LOSS_SVC || param.solver_type == L1R_LR)
       param.eps = 0.01;
-  }
-  else
+  }else
     param.eps=*epsilon;
 
   param.nr_weight = *nr_weight;
@@ -71,30 +82,27 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
   if(*cross>0){
     flag_cross_validation = 1;
     nr_fold = *cross;
-  }
-  else{
+  }else{
     flag_cross_validation = 0;
     nr_fold = 0;
   }
 
-  if(*verbose){
+  if(*verbose)
     Rprintf("PROBLEM SETUP\n");
-  }
-  // PROBLEM SETUP
   prob.l = n;
   prob.bias = *bias;
 
   prob.y = Malloc(int,n);
   prob.x = Malloc(struct feature_node *,n);
 
-    //Allocate space for the features; we need for each training sample one node for:
-  //  each feature 
+  //Allocate space for the features; we need for each training sample one node for:
+  //  each feature (since we're getting the info via data frame, we know there will be just orig_dim features per sample, not all p.
   //  one for the bias (if applicable)
   //  one to indicate the end of the feature list for the LIBLINEAR internals
   if(prob.bias >= 0)
-    x_space = Malloc(struct feature_node, (p+1)*n + n);
+    x_space = Malloc(struct feature_node, (orig_dim+1)*n + n);
   else
-    x_space = Malloc(struct feature_node, p*n + n);
+    x_space = Malloc(struct feature_node, orig_dim*n + n);
 
   if(*verbose)
     Rprintf("FILL DATA STRUCTURE\n");
@@ -106,10 +114,11 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
     prob.x[i] = &x_space[k];
 
     // Fill the sparse feature vector for this sample
-    for(j=0; j<p; j++){
-      if(X[(p*i) + j] != 0){
-        x_space[k].index = j+1; //liblinear indexes from 1
-        x_space[k].value = X[(p*i)+j];
+    for(j=0; j<orig_dim; j++){
+      val = X[(orig_dim*i)+j];
+      if(val != 0){
+        x_space[k].index = offset[j]+1; //liblinear indexes from 1
+        x_space[k].value = val;
         k++;
       }
     }
@@ -123,7 +132,7 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
     k++;
   }
 
-  prob.n = p; //since we're getting a data frame, all of the samples have the same number of features: p.
+  prob.n = p; 
   if(prob.bias >= 0)
     prob.n++; //the bias counts as a feature if we've got it.
 
@@ -144,7 +153,6 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
     if(*verbose){
       Rprintf("CROSS VAL\n");
     }
-    //do_cross_validation();
     W[0]=do_cross_validation();
   }
   else{
@@ -185,9 +193,8 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
     }
     free_and_destroy_model(&model_);
   }
-  if(*verbose){
+  if(*verbose)
     Rprintf("FREE SPACE\n");
-  }
   free(prob.y);
   free(prob.x);
   free(x_space);
