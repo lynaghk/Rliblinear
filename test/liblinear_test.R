@@ -40,7 +40,7 @@ test_that('all problem types are executed properly, with and without bias', {
 
 test_that('model params are returned correctly', {
   model = liblinear(
-    data = x,
+    data = x[,1:2],
     labels = y,
     type = 'l2l2_svm_dual',
     cost = 1,
@@ -63,7 +63,7 @@ test_that('a model object can be used for prediction', {
     type = 'l2l2_svm_dual',
     cost = 1,
     bias = TRUE,
-    verbose = FALSE)
+    verbose = TRUE)
 
   results = predict(model, test_set)
   accuracy = sum(results == y[-train_i]) / length(results)
