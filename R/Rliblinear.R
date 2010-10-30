@@ -1,3 +1,15 @@
+#convert an ordered factor column to numbers in [0, 1].
+scale_ordered_factor = function(x){
+  l = length(levels(x))
+  if(l == 1) return(rep(1.0, length(x)))
+  (as.integer(x) - 1) / (length(levels(x)) - 1)
+}
+  
+
+
+
+
+
 liblinear = function(
   data,
   labels,
@@ -100,7 +112,7 @@ liblinear = function(
   })
   p = sum(p_levels)
 
-  #column names with factors expanded (e.g. variable 'a' with three levels will have colnames c('a_level1', 'a_level2', 'a_level3'))
+  #column names with factors expanded (e.g. variable 'a' with three levels will have colnames c('a = level1', 'a = level2', 'a = level3'))
   data_colnames = unlist(sapply(1:orig_dim, function(i){
     orig_colname = colnames(data)[i]
     if(is.null(orig_colname))

@@ -69,3 +69,17 @@ test_that('a model object can be used for prediction', {
   accuracy = sum(results == y[-train_i]) / length(results)
   expect_that( accuracy > 0.8, is_true() )
 })
+
+
+test_that('factors are expanded and used', {
+  accuracy = liblinear(
+    data = cbind(x, y),
+    labels = y,
+    type = 'l2l2_svm_dual',
+    cost = 1,
+    cross = 4,
+    bias = TRUE,
+    verbose = TRUE)
+
+  expect_that( accuracy > 0.99, is_true() )
+})
