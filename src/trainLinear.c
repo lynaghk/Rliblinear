@@ -127,7 +127,7 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
     k++;
   }
 
-  prob.n = p; 
+  prob.n = p;
   if(prob.bias >= 0)
     prob.n++; //the bias counts as a feature if we've got it.
 
@@ -145,47 +145,38 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
   }
 
   if(flag_cross_validation){
-    if(*verbose){
+    if(*verbose)
       Rprintf("CROSS VAL\n");
-    }
-    W[0]=do_cross_validation();
-  }
-  else{
-    if(*verbose){
+    W[0] = do_cross_validation();
+  }else{
+    if(*verbose)
       Rprintf("TRAIN\n");
-    }
-    model_=train(&prob, &param);
-    if(*verbose){
+
+    model_ = train(&prob, &param);
+
+    if(*verbose)
       Rprintf("COPY RESULT FOR ");
-    }
     if(model_->nr_class==2){
-      if(*verbose){
+      if(*verbose)
         Rprintf("TWO CLASSES\n");
-      }
-      for(i=0; i<p; i++){
-        W[i]=model_->w[i];
-      }
-      if(prob.bias >= 0){
-        W[p]=model_->w[i];
-      }
-    }
-    else{
-      if(*verbose){
-        Rprintf("%d CLASSES\n",model_->nr_class);
-      }
-      for(i=0;i<model_->nr_class;i++){
-        if(prob.bias >= 0){
-          for(j=0; j<p+1; j++){
-            W[(p+1)*i+j]=model_->w[(p+1)*i+j];
-          }
-        }
-        else{
+      for(i=0; i<p; i++)
+        W[i] = model_->w[i];
+      if(prob.bias >= 0)
+        W[i] = model_->w[i];
+    }else{
+      if(*verbose)
+        Rprintf("%d CLASSES\n", model_->nr_class);
+      for(i=0; i<model_->nr_class; i++)
+        if(prob.bias >= 0)
+          for(j=0; j<p+1; j++)
+            W[(p+1)*i+j] = model_->w[(p+1)*i+j];
+        else
           for(j=0; j<p; j++){
             W[p*i+j]=model_->w[p*i+j];
           }
-        }
-      }
     }
+
+
     free_and_destroy_model(&model_);
   }
   if(*verbose)
