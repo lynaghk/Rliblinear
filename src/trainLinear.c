@@ -50,11 +50,6 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
     offset[i] = p; //offset i is how many true dimensions come before index i (i.e. if the first column is a factor with three levels, then offset[1] = 3).
     p += dim_levels[i];
   }
-  Rprintf("offsets");
-  for(i=0; i<orig_dim; i++)
-    Rprintf("%d: %d\n", i, offset[i]);
-
-  Rprintf("true number of dimensions: %d\n", p);
 
   if(*verbose){
     Rprintf("ARGUMENTS SETUP\n");
