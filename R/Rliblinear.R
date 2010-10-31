@@ -145,9 +145,11 @@ liblinear = function(
 
 
   # as.double(t(data.matrix(X))) corresponds to rewrite X as a nxp-long vector instead of a n-rows and p-cols matrix. Rows of X are appended one at a time. Factors are converted to integers
+  data = t(data.matrix(data))
+  data[is.na(data)] = 0 #convert NAs to zero; trainLinear will then know not to mark any of the level-dimenions for a factor column having an NA
   ret <- .C("trainLinear",
             as.double(W),
-            as.double(t(data.matrix(data))),
+            as.double(data),
             as.double(yC),
             as.integer(n), #the number of training data
             as.integer(orig_dim), #the number of columns in the data frame

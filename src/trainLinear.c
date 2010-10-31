@@ -37,10 +37,10 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
   const char *error_msg;
   int i, j, k;
   i=j=k=0; //counters
-
+  double val;
   int n = *nb_samples; //number of training samples
   int orig_dim = *nb_dim; //number of original dimensions
-  double val;
+
 
   //we expand factors so we have a dimension per level, so we need to calculate the dimensionality we're passing to LIBLINEAR
   int p = 0;
@@ -112,12 +112,19 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
     for(j=0; j<orig_dim; j++){
       val = X[(orig_dim*i)+j];
       if(val != 0){
-        x_space[k].index = offset[j]+1; //liblinear indexes from 1
-        x_space[k].value = val;
+        if(dim_levels[j] != 1){ //then this is a factor we need to expand
+          x_space[k].index = offset[j] + val; //R indexes from 1 as well, so the first factor will have val=1
+          x_space[k].value = 1;
+        }else{ //this is a numeric column; pass the value
+          x_space[k].index = offset[j] + 1; //liblinear indexes from 1
+          x_space[k].value = val;
+        }
+        //print out the representation of this datum passed to liblinear; helpful for catching indexing bugs
+        //Rprintf("%d: %lf ", x_space[k].index, x_space[k].value);
         k++;
       }
     }
-
+    //Rprintf("\n");
     if(prob.bias >= 0){
       x_space[k].value = 1;
       x_space[k].index = p+1;

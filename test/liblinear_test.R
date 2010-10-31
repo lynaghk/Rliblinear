@@ -72,14 +72,33 @@ test_that('a model object can be used for prediction', {
 
 
 test_that('factors are expanded and used', {
+  z = as.data.frame(cbind(y, x[,1]))
+  z$y = factor(z$y)
   accuracy = liblinear(
-    data = cbind(x, y),
+    data = z,
     labels = y,
     type = 'l2l2_svm_dual',
     cost = 1,
     cross = 4,
-    bias = TRUE,
+    bias = FALSE,
     verbose = TRUE)
 
   expect_that( accuracy > 0.99, is_true() )
+})
+
+
+test_that('NAs are handled in factor columns', {
+  z = as.data.frame(cbind(y, x[,1:3]))
+  z$y = factor(z$y)
+  z[sample(1:n, n/2),'y'] = NA
+  accuracy = liblinear(
+    data = z,
+    labels = y,
+    type = 'l2l2_svm_dual',
+    cost = 1,
+    cross = 4,
+    bias = FALSE,
+    verbose = TRUE)
+
+  expect_that( accuracy > 0.8, is_true() )
 })

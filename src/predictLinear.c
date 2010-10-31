@@ -24,11 +24,11 @@ void predictLinear(double *Y, double *X, double *W, int *proba, int *nb_class, i
  *
  */
 void predictLinear(double *Y, double *X, double *W, int *proba, int *nb_class, int *nb_dim, int *dim_levels, int *nb_samples, double *bias, int *labels, int *type){
-	
-	int i, j, predict_label;
-	double *prob_estimates=NULL;
-  int orig_dim = *nb_dim;
 
+  int i, j, predict_label;
+  double *prob_estimates=NULL;
+  int orig_dim = *nb_dim;
+  double val;
   //we expand factors so we have a dimension per level, so we need to calculate the dimensionality we're passing to LIBLINEAR
   int p = 0;
   int *offset = Malloc(int, orig_dim);
@@ -38,17 +38,17 @@ void predictLinear(double *Y, double *X, double *W, int *proba, int *nb_class, i
     p += dim_levels[i];
   }
 
-	// RECONSTRUCT THE (REQUIRED) PARAMETERS
-	par.solver_type=*type;
-	
-	// RECONSTRUCT THE MODEL
-	model_.nr_class=*nb_class;
-	model_.nr_feature=p;
-	model_.bias=*bias;
-	model_.param=par;
-	model_.w=W;
-	model_.label=labels;
-	
+  // RECONSTRUCT THE (REQUIRED) PARAMETERS
+  par.solver_type=*type;
+
+  // RECONSTRUCT THE MODEL
+  model_.nr_class=*nb_class;
+  model_.nr_feature=p;
+  model_.bias=*bias;
+  model_.param=par;
+  model_.w=W;
+  model_.label=labels;
+
   //Allocate space for the features; we can do one sample at a time, and need a node for
   //  each feature (since we're getting the info via data frame, we know there will be just orig_dim features per sample, not all p.
   //  one for the bias (if applicable)
@@ -58,44 +58,52 @@ void predictLinear(double *Y, double *X, double *W, int *proba, int *nb_class, i
   else
     x = Malloc(struct feature_node, orig_dim+1);
 
-	if(*proba){
-		if(model_.param.solver_type!=L2R_LR){
-			Rprintf("Probability output is only supported for logistic regression\n");
+  if(*proba){
+    if(model_.param.solver_type!=L2R_LR){
+      Rprintf("Probability output is only supported for logistic regression\n");
       return;
     }
-		prob_estimates = Malloc(double, *nb_class);
-	}
+    prob_estimates = Malloc(double, *nb_class);
+  }
 
-	// PREDICTION PROCESS	
-	for(i=0; i<*nb_samples; i++){
-		
-		for(j=0; j<orig_dim; j++){
-			x[j].value = X[(orig_dim*i)+j];
-			x[j].index = offset[j]+1; //liblinear indexes from 1
-		}
+  // PREDICTION PROCESS
+  for(i=0; i<*nb_samples; i++){
 
-		if(model_.bias>=0){
-			x[j].index = p+1;
-			x[j].value = model_.bias;
-			j++;
-		}
-		x[j].index = -1;
+    for(j=0; j<orig_dim; j++){
+      val = X[(orig_dim*i)+j];
+      if(val != 0){
+        if(dim_levels[j] != 1){ //then this is a factor we need to expand
+          x[j].index = offset[j] + val; //R indexes from 1 as well, so the first factor will have val=1
+          x[j].value = 1;
+        }else{ //this is a numeric column; pass the value
+          x[j].index = offset[j] + 1; //liblinear indexes from 1
+          x[j].value = val;
+        }
+      }
+    }
 
-		if(*proba){
-			predict_label = predict_probability(&model_, x, prob_estimates);
-			Rprintf("%d",predict_label);
-			for(j=0;j<model_.nr_class;j++)
-				Rprintf("\t%.8f",prob_estimates[j]);
-			Rprintf("\n");
-			Y[i]=predict_label;
-		}else{
-			predict_label = predict(&model_,x);
-			Y[i] = predict_label;
-		}
-	}
+    if(model_.bias>=0){
+      x[j].index = p+1;
+      x[j].value = model_.bias;
+      j++;
+    }
+    x[j].index = -1;
 
-	if(*proba)
-		free(prob_estimates);
-	return;
+    if(*proba){
+      predict_label = predict_probability(&model_, x, prob_estimates);
+      Rprintf("%d",predict_label);
+      for(j=0;j<model_.nr_class;j++)
+        Rprintf("\t%.8f",prob_estimates[j]);
+      Rprintf("\n");
+      Y[i]=predict_label;
+    }else{
+      predict_label = predict(&model_,x);
+      Y[i] = predict_label;
+    }
+  }
+
+  if(*proba)
+    free(prob_estimates);
+  return;
 }
 
