@@ -29,11 +29,12 @@ predict.liblinear = function(model, newx, proba=FALSE, ...){
   }
 
   # as.double(t(data.matrix(X))) corresponds to rewrite X as a nxp-long vector instead of a n-rows and p-cols matrix. Rows of X are appended one at a time. Factors are converted to integers
-
+  data = t(data.matrix(newx))
+  data[is.na(data)] = 0 #convert NAs to zero; trainLinear will then know not to mark any of the level-dimenions for a factor column having an NA
   ret <- .C(
             "predictLinear",
             as.double(Y),
-            as.double(t(data.matrix(newx))),
+            as.double(t(data)),
             as.double(t(model$w)),
             as.integer(proba),
             as.integer(model$nb_class),
