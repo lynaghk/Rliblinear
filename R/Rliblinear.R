@@ -1,3 +1,15 @@
+#convert an ordered factor column to numbers in [0, 1].
+scale_ordered_factor = function(x){
+  l = length(levels(x))
+  if(l == 1) return(rep(1.0, length(x)))
+  (as.integer(x) - 1) / (length(levels(x)) - 1)
+}
+  
+
+
+
+
+
 liblinear = function(
   data,
   labels,
@@ -25,18 +37,19 @@ liblinear = function(
 
   if(!is.character(type))
     stop(type_err)
-  
+
   type = types[[type]]
   if(is.null(type))
     stop(type_err)
 
+  #data must be a data frame
+  if(class(data) != 'data.frame') data = as.data.frame(data)
+  
   # Nb samples
   n=dim(data)[1]
   # Nb features
-  p=dim(data)[2]
+  orig_dim=dim(data)[2]
 
-  # Bias
-  b = if(bias){1}else{-1}
 
   # Epsilon
   if(is.null(epsilon) || epsilon<0){
@@ -89,7 +102,30 @@ liblinear = function(
 
   }
 
-  # Return storage preparation
+
+  
+
+  #find the number of factor levels for each column; the C program expands these into one dimension per level
+  p_levels = sapply(data, function(x){
+    l = levels(x)
+    return(if (is.null(l)) 1 else length(l))
+  })
+  p = sum(p_levels)
+
+  #column names with factors expanded (e.g. variable 'a' with three levels will have colnames c('a = level1', 'a = level2', 'a = level3'))
+  data_colnames = unlist(sapply(1:orig_dim, function(i){
+    orig_colname = colnames(data)[i]
+    if(is.null(orig_colname))
+      orig_colname = paste('V', i, sep='')
+    if(p_levels[i] == 1)
+      orig_colname
+    else
+      paste(orig_colname, levels(data[,i]), sep=' = ')
+  }))
+
+  if(bias) data_colnames = c(data_colnames, 'bias')
+
+  # Return storage preparation for result
   if(nbClass==2){
     if(bias){
       W=matrix(nc=p+1,nr=1,data=0)
@@ -99,28 +135,26 @@ liblinear = function(
     }
   }
   else if(nbClass>2){
-    if(bias){
+    if(bias)
       W=matrix(nc=(p+1)*nbClass,nr=1,data=0)
-    }
-    else{
+    else
       W=matrix(nc=p*nbClass,nr=1,data=0)
-    }
-  }
-  else{
-    stop("Wrong number of classes ( < 2 ).\n")
-  }
+  }else
+  stop("Wrong number of classes ( < 2 ).\n")
 
-  #
-  # </Arg preparation>
 
-  # as.double(t(X)) corresponds to rewrite X as a nxp-long vector instead of a n-rows and p-cols matrix. Rows of X are appended one at a time.
+
+  # as.double(t(data.matrix(X))) corresponds to rewrite X as a nxp-long vector instead of a n-rows and p-cols matrix. Rows of X are appended one at a time. Factors are converted to integers
+  data = t(data.matrix(data))
+  data[is.na(data)] = 0 #convert NAs to zero; trainLinear will then know not to mark any of the level-dimenions for a factor column having an NA
   ret <- .C("trainLinear",
             as.double(W),
-            as.double(t(data)),
+            as.double(data),
             as.double(yC),
-            as.integer(n),
-            as.integer(p),
-            as.double(b),
+            as.integer(n), #the number of training data
+            as.integer(orig_dim), #the number of columns in the data frame
+            as.integer(p_levels), #the number of levels for each dimension (1 for non-factors)
+            as.double(if(bias){1}else{-1}),
             as.integer(type),
             as.double(cost),
             as.double(epsilon),
@@ -131,41 +165,23 @@ liblinear = function(
             as.integer(verbose)
             )
 
-  if(cross==0){
-    if(nbClass==2){
-      w=matrix(nc=dim(W)[2],nr=1,data=ret[[1]])
-    }
-    else{
-      w=matrix(nc=dim(W)[2]/nbClass,nr=nbClass,data=ret[[1]],byrow=TRUE)
-    }
-    if(!is.null(colnames(data))){
-      if(bias){
-        colnames(w)=c(colnames(data),"Bias")
-      }
-      else{
-        colnames(w)=colnames(data)
-      }
-    }
-    else{
-      if(bias){
-        colnames(w)=c(paste("W",c(1:dim(data)[2]),sep=""),"Bias")
-      }
-      else{
-        colnames(w)=c(paste("W",c(1:dim(data)[2]),sep=""))
-      }
-    }
-
-    m=list()
-    class(m)="liblinear"
-    m$type_detail= names(Filter(function(x){x == type}, types))
-    m$type=type
-    m$w=w
-    m$bias=bias
-    m$class_names=yLev
-    m$nb_class=nbClass
-    return(m)
-  }
-  else{
+  if(cross != 0) #just return the cross validation accuracy reported by liblinear
     return(ret[[1]][1])
-  }
+  else
+    if(nbClass==2) #two class problems get a single weight vector for classification
+      w = matrix(nc=dim(W)[2],nr=1,data=ret[[1]])
+    else #multiclass problems get a weight vector for each class (one vs. all)
+      w = matrix(nc=dim(W)[2]/nbClass,nr=nbClass,data=ret[[1]],byrow=TRUE)
+
+  colnames(w) = data_colnames
+
+  m=list()
+  class(m)="liblinear"
+  m$type_detail= names(Filter(function(x){x == type}, types))
+  m$type=type
+  m$w=w
+  m$bias=bias
+  m$class_names=yLev
+  m$nb_class=nbClass
+  return(m)
 }
