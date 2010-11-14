@@ -84,6 +84,5 @@ The original R wrapper (*LiblineaR*)  was written by [Thibault Helleputte](http:
 
 Todo
 ----
-* Automatically convert unordered factors into binary variables in additional input dimensions
 * Automatically convert ordered factors into cuts of 0--1
 * Add support for new 1.7 dual form of logistic regression
