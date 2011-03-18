@@ -2,6 +2,10 @@ predict.liblinear = function(model, newx, proba=FALSE, ...){
 
   error=c()
 
+  #coerce a vector into a single-column data frame
+  if(!(class(newx) %in% c("matrix", "data.frame")))
+    newx = data.frame(newx)
+  
   # Nb samples
   n=dim(newx)[1]
   # Nb features
