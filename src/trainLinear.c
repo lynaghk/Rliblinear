@@ -52,7 +52,9 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
   }
 
   if(*verbose){
-    Rprintf("ARGUMENTS SETUP\n");
+      if(orig_dim != p)
+          Rprintf("Your problem has been expanded from %d to %d dimensions\n", orig_dim, p);
+      Rprintf("ARGUMENTS SETUP\n");
   }
   param.solver_type = *type;
   param.C = *cost;

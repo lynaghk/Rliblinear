@@ -1,15 +1,3 @@
-#convert an ordered factor column to numbers in [0, 1].
-scale_ordered_factor = function(x){
-  l = length(levels(x))
-  if(l == 1) return(rep(1.0, length(x)))
-  (as.integer(x) - 1) / (length(levels(x)) - 1)
-}
-  
-
-
-
-
-
 liblinear = function(
   data,
   labels,
@@ -145,7 +133,7 @@ liblinear = function(
 
 
   #rewrite X as a nxp-long vector instead of a n-rows and p-cols matrix. Rows of X are appended one at a time. Factors are converted to integers
-  data = t(data.matrix(data))
+  data = t(df_to_double(data))
   data[is.na(data)] = -9999 #convert NAs to-9999; if trainLinear() sees a value of -9999, it won't pass it along to liblinear.
   ret <- .C("trainLinear",
             as.double(W),
