@@ -26,6 +26,8 @@ Install the latest version via git:
     R CMD build Rliblinear
     R CMD INSTALL Rliblinear
 
+Note that you will need the Debian/Ubuntu packages: `libblas-dev` and `gfortran`.
+
 Ten-fold cross validation:
 
     require(Rliblinear)
