@@ -31,14 +31,14 @@ predict.liblinear = function(model, newx, proba=FALSE, ...){
     cat("Accordingly, 'proba' is set to FALSE.\n")
     proba=FALSE
   }
-
-  # as.double(t(data.matrix(X))) corresponds to rewrite X as a nxp-long vector instead of a n-rows and p-cols matrix. Rows of X are appended one at a time. Factors are converted to integers
+  
+  #rewrite X as a nxp-long vector instead of a n-rows and p-cols matrix. Rows of X are appended one at a time. Factors are converted to integers
   data = t(data.matrix(newx))
-  data[is.na(data)] = 0 #convert NAs to zero; trainLinear will then know not to mark any of the level-dimenions for a factor column having an NA
+  data[is.na(data)] = 0 #convert NAs to zero so predictLinear() will not mark any of the level-dimensions as a factor column having an NA
   ret <- .C(
             "predictLinear",
             as.double(Y),
-            as.double(t(data)),
+            as.double(data),
             as.double(t(model$w)),
             as.integer(proba),
             as.integer(model$nb_class),
