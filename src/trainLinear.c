@@ -52,7 +52,9 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
   }
 
   if(*verbose){
-    Rprintf("ARGUMENTS SETUP\n");
+      if(orig_dim != p)
+          Rprintf("Your problem has been expanded from %d to %d dimensions\n", orig_dim, p);
+      Rprintf("ARGUMENTS SETUP\n");
   }
   param.solver_type = *type;
   param.C = *cost;
@@ -120,7 +122,7 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
           x_space[k].value = val;
         }
         //print out the representation of this datum passed to liblinear; helpful for catching indexing bugs
-        //Rprintf("%d: %lf ", x_space[k].index, x_space[k].value);
+        //Rprintf("%d: %d = %lf\n", i, x_space[k].index, x_space[k].value);
         k++;
       }
     }
