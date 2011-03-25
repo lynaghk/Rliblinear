@@ -34,7 +34,7 @@ predict.liblinear = function(model, newx, proba=FALSE, ...){
   
   #rewrite X as a nxp-long vector instead of a n-rows and p-cols matrix. Rows of X are appended one at a time. Factors are converted to integers
   data = t(data.matrix(newx))
-  data[is.na(data)] = 0 #convert NAs to zero so predictLinear() will not mark any of the level-dimensions as a factor column having an NA
+  data[is.na(data)] = -9999 #convert NAs to-9999; if trainLinear() sees a value of -9999, it won't pass it along to liblinear.
   ret <- .C(
             "predictLinear",
             as.double(Y),

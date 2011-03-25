@@ -71,7 +71,7 @@ void predictLinear(double *Y, double *X, double *W, int *proba, int *nb_class, i
 
     for(j=0; j<orig_dim; j++){
       val = X[(orig_dim*i)+j];
-      if(val != 0){
+      if(val != -9999){
         if(dim_levels[j] != 1){ //then this is a factor we need to expand
           x[j].index = offset[j] + val; //R indexes from 1 as well, so the first factor will have val=1
           x[j].value = 1;

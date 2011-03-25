@@ -111,7 +111,7 @@ void trainLinear(double *W, double *X, double *Y, int *nb_samples, int *nb_dim, 
     // Fill the sparse feature vector for this sample
     for(j=0; j<orig_dim; j++){
       val = X[(orig_dim*i)+j];
-      if(val != 0){
+      if(val != -9999){
         if(dim_levels[j] != 1){ //then this is a factor we need to expand
           x_space[k].index = offset[j] + val; //R indexes from 1 as well, so the first factor will have val=1
           x_space[k].value = 1;
