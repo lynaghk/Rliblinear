@@ -90,7 +90,7 @@ test_that('factors are expanded and used', {
 test_that('NAs are handled in factor columns', {
   z = as.data.frame(cbind(y, x[,1:3]))
   z$y = factor(z$y)
-  z[sample(1:n, n/2),'y'] = NA
+  z[sample(1:n, n/3),'y'] = NA
   accuracy = liblinear(
     data = z,
     labels = y,
